@@ -1,0 +1,8 @@
+1. Download 'MATLABruntime_installer' and run.
+2. Download the Application to a memorable and easy-access folder.
+3. Download bank statement from website in CSV form.
+4. Rename CSV to 'test.csv'.
+5. Move CSV into the 'application' folder location specified by the user.
+6. Open 'American_Community_Bank_and_Trust_Budget_Pie'.
+7. Allow terminal to run.
+8. Use 'help' or 'skip' to follow manual entry prompts in the terminal.
