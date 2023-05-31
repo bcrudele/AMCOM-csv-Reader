@@ -2,31 +2,33 @@ function [] = amcom_csv_read()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           American Community Bank and Trust Budgeting Program           %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 % Description:
 %   This MATLAB code organizes data from a CSV file and performs various
 %   calculations and categorizations. It reads the data from the file,
 %   processes it, and generates a pie chart and count display based on
 %   different categories. The code also includes manual entry functionality
-%   for categorizing data. The categorized data is then used to generate
-%   visualizations and summary statistics.
+%   for categorizing data. The categorized data is then used to
+%   generate visualizations and summary statistics.
 %
-%           THIS IS NO WAY ASSOCIATED WITH AMERICAN COMMUNITY BANK 
+%           THIS IS NO WAY ASSOCIATED WITH AMERICAN COMMUNITY BANK
 %                       AND TRUST ONLY FOR PERSONAL USE.
 %
-%   Notes:  
-%           - Removed Line graph due to balance calculation bug.
+%   Notes:
 %           - Enter 'help' during manual input sequence for valid entries.
-%      
+%           - This version is for the .exe program.
+%           - Input file current name: 'finance.csv'.
+%
 %
 % Author: [bcrudele]
-% Date: [05/27/2023]
+% Date: [05/31/2023]
+% Version:   [1.0.0]
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Array Organization
 
-filename = 'test.csv';
+filename = 'finance.csv';
 
 data = readmatrix(filename, "NumHeaderLines", 1);
 
@@ -55,6 +57,7 @@ cars = list_cars();         % cars (payment)
 carInsuranceCompanies = list_carInsurance();    % car insurance
 bankingTransfers = list_bankTransfers();        % bank account transfers
 investing = list_investing();
+gym = list_gym();   % list of gyms
 
 data = readmatrix(filename, "NumHeaderLines", 1 ,'OutputType', 'string');
 dates = data(:,6);  % purchase dates
@@ -87,7 +90,7 @@ end
 
 %% Summation Machine
 
-categories = 16; % number of categories (includes 'other')
+categories = 17; % number of categories (includes 'other')
 
 dollars = zeros(1,categories); % vector for dollar values
 counts = zeros(1,categories);  % vector for counted purchases
@@ -147,9 +150,12 @@ for i = 1:numel(codes)
     elseif (contains(descriptions(i), bankingTransfers, 'IgnoreCase', true))
         %counts(x) = counts(x) + 1;
         %dollars(x) = dollars(x) + debit(i);
-    else
+    elseif (contains(descriptions(i), gym, 'IgnoreCase', true))
         counts(16) = counts(16) + 1;
         dollars(16) = dollars(16) + debit(i);
+    else
+        counts(17) = counts(17) + 1;
+        dollars(17) = dollars(17) + debit(i);
         manualEntries(ct) = i;
         ct = ct + 1;
     end
@@ -159,7 +165,7 @@ end
 % For an executable, the manual entry must be re-evaluated
 
 ct = 1;
-validCategories = {'skip','Foods', 'Utilities', 'Stores', 'Phone', 'Health', 'Car', 'Housing', 'Subscriptions', 'Payments', 'Income','School','Gas','Entertainment','Services','Investing','Other'};
+validCategories = {'skip','Foods', 'Utilities', 'Stores', 'Phone', 'Health', 'Car', 'Housing', 'Subscriptions', 'Payments', 'Income','School','Gas','Entertainment','Services','Investing','Gym','Other'};
 helpStrings = {'help', 'HELP', 'Help'};
 skipStrings = {'skip'};
 manualCategories = {};
@@ -171,11 +177,14 @@ while ct <= numel(manualEntries)
     fprintf("Manual Input %.f/%.f\n",ct,numel(manualEntries));
     fprintf("\nPurchase Description: %s\n\n",descriptions(manualEntries(ct)));
     fprintf("Enter: 'help' to see available categories\n")
+
+    % uncomment for terminal user input
+
     while ~any(strcmpi(validCategories, inputCategory))
         inputCategory = input('Enter a category: ', 's');
         inputCategory = lower(inputCategory);
         if any(strcmpi(helpStrings, inputCategory))
-            fprintf("\nFoods|Utilities|Stores|Phone|Health|Car|Housing|Subscriptions|Payments\nGas|Income|School|Entertainment|Services|Investing|Other\n");
+            fprintf("\nFoods|Utilities|Stores|Phone|Health|Car|Housing|Subscriptions|Payments\nGas|Income|School|Entertainment|Services|Investing|Gym|Other\n");
             fprintf("Enter 'skip' to auto-fill remaining inputs to 'Other'\n");
         elseif ~any(strcmpi(validCategories, inputCategory))
             disp('Invalid category');
@@ -239,16 +248,19 @@ for i = 1:numel(manualEntries)
     elseif (ischar(manualCategories{i})) && (contains(manualCategories{i}, 'investing', 'IgnoreCase', true))
         counts(15) = counts(15) + 1;
         dollars(15) = dollars(15) + debit(manualEntries(i));
-    elseif (ischar(manualCategories{i})) && (contains(manualCategories{i}, 'other', 'IgnoreCase', true))
+    elseif (ischar(manualCategories{i})) && (contains(manualCategories{i}, 'gym', 'IgnoreCase', true))
         counts(16) = counts(16) + 1;
         dollars(16) = dollars(16) + debit(manualEntries(i));
+    else % (ischar(manualCategories{i})) && (contains(manualCategories{i}, 'other', 'IgnoreCase', true))
+        counts(17) = counts(17) + 1;
+        dollars(17) = dollars(17) + debit(manualEntries(i));
     end
 end
 
 %% Pie Chart Output
 
-% Foods|Utilities|Stores|Phone|Health|Car|Housing|Subscriptions|Payments|Gas|Income|School|Entertainment|Services|Other
-labels = {'Foods', 'Utilities', 'Stores', 'Phones', 'Health', 'Car', 'Housing', 'Subscriptions', 'Payment Platforms', 'Gas', 'Income', 'School', 'Entertainment','Services','Investing','Other'};
+% Foods|Utilities|Stores|Phone|Health|Car|Housing|Subscriptions|Payments|Gas|Income|School|Entertainment|Services|Investing|Gym|Other
+labels = {'Foods', 'Utilities', 'Stores', 'Phones', 'Health', 'Car', 'Housing', 'Subscriptions', 'Payment Platforms', 'Gas', 'Income', 'School', 'Entertainment','Services','Investing','Gym','Other'};
 
 % Remove zero'd values
 pielabels = labels(dollars > 0);
